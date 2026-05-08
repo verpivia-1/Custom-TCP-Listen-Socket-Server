@@ -18,6 +18,7 @@ namespace Server.NetworkContracts_Generater
             writer.Write(RoomId);
             writer.Write(PlayerCount);
             writer.Write(MaxPlayers);
+            writer.Write(PlayerList.Count);
             foreach (var player in PlayerList)
             {
                 player.Serialize(writer);
@@ -67,15 +68,14 @@ namespace Server.NetworkContracts_Generater
         public int ObjectId { get; set; }
         public int BehaviourIndex { get; set; }
         public int VariableIndex { get; set; }
-        public List<byte> Payload { get; set; } = new();
+        public byte[] Payload { get; set; } = Array.Empty<byte>();
         public void Serialize(BinaryWriter writer)
         {
             writer.Write(ObjectId);
             writer.Write(BehaviourIndex);
             writer.Write(VariableIndex);
-            writer.Write(Payload.Count);
-            foreach (var item in Payload)
-                writer.Write(item);
+            writer.Write(Payload.Length);
+            writer.Write(Payload, 0, Payload.Length);
         }
         public void Deserialize(BinaryReader reader)
         {
@@ -84,9 +84,7 @@ namespace Server.NetworkContracts_Generater
             VariableIndex = reader.ReadInt32();
             {
                 int count = reader.ReadInt32();
-                Payload = new(count);
-                for (int i = 0; i < count; i++)
-                    Payload.Add(reader.ReadByte());
+                Payload = reader.ReadBytes(count);
             }
         }
     }
