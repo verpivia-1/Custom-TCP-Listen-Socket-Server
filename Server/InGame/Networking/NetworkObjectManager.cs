@@ -84,7 +84,7 @@ namespace Server.InGame.Networking
                                 ObjectId       = obj.NetworkObjectId,
                                 BehaviourIndex = bi,
                                 VariableIndex  = vi,
-                                Payload        = ms.ToArray().ToList()
+                                Payload        = ms.ToArray()
                             }
                         });
                     }
@@ -110,7 +110,7 @@ namespace Server.InGame.Networking
             var variable = behaviour.NetworkVariables[vi];
 
             // SetWithoutNotify 효과: Deserialize 후 즉시 MarkClean → flush 루프가 재브로드캐스트 안 함
-            using var ms = new MemoryStream(delta.Payload.ToArray());
+            using var ms = new MemoryStream(delta.Payload);
             using var reader = new BinaryReader(ms);
             variable.Deserialize(reader);
             variable.MarkClean();

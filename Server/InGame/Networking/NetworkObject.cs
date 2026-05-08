@@ -79,7 +79,7 @@ namespace Server.InGame.Networking
                         ObjectId = NetworkObjectId,
                         BehaviourIndex = bi,
                         VariableIndex = vi,
-                        Payload = ms.ToArray().ToList()
+                        Payload = ms.ToArray()
                     });
                 }
             }
