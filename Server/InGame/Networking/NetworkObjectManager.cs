@@ -98,6 +98,7 @@ namespace Server.InGame.Networking
         public void ApplyVariableUpdate(int senderClientId, NetworkVariableDelta delta)
         {
             if (!_objects.TryGetValue(delta.ObjectId, out var obj)) return;
+            if (obj.OwnerClientId != senderClientId) return;
 
             int bi = delta.BehaviourIndex;
             int vi = delta.VariableIndex;

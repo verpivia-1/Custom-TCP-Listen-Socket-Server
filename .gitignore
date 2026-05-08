@@ -69,3 +69,11 @@ x86/
 
 # Publish Web Output
 *.[Pp]ublish.xml
+
+# 빌드 결과물 (컴파일된 파일)
+[Bb]in/
+[Oo]bj/
+
+# 기타 임시 파일
+*.log
+*.tmp

@@ -18,6 +18,7 @@ namespace Server.NetworkContracts_Generater
             writer.Write(RoomId);
             writer.Write(PlayerCount);
             writer.Write(MaxPlayers);
+            writer.Write(PlayerList.Count);
             foreach (var player in PlayerList)
             {
                 player.Serialize(writer);
