@@ -1,0 +1,221 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\github\\Lougelike\\Server\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{937789D6-6D5C-45DB-A621-267C98B1AB88}|Server\\Server.csproj|d:\\github\\lougelike\\server\\server\\ingame\\networking\\networkplayerstate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{937789D6-6D5C-45DB-A621-267C98B1AB88}|Server\\Server.csproj|solutionrelative:server\\ingame\\networking\\networkplayerstate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{937789D6-6D5C-45DB-A621-267C98B1AB88}|Server\\Server.csproj|d:\\github\\lougelike\\server\\server\\ingame\\networking\\networkvariable.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{937789D6-6D5C-45DB-A621-267C98B1AB88}|Server\\Server.csproj|solutionrelative:server\\ingame\\networking\\networkvariable.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{937789D6-6D5C-45DB-A621-267C98B1AB88}|Server\\Server.csproj|d:\\github\\lougelike\\server\\server\\ingame\\networking\\networkplayertransform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{937789D6-6D5C-45DB-A621-267C98B1AB88}|Server\\Server.csproj|solutionrelative:server\\ingame\\networking\\networkplayertransform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{937789D6-6D5C-45DB-A621-267C98B1AB88}|Server\\Server.csproj|d:\\github\\lougelike\\server\\server\\ingame\\networking\\networkbehaviour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{937789D6-6D5C-45DB-A621-267C98B1AB88}|Server\\Server.csproj|solutionrelative:server\\ingame\\networking\\networkbehaviour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{937789D6-6D5C-45DB-A621-267C98B1AB88}|Server\\Server.csproj|d:\\github\\lougelike\\server\\server\\ingame\\networking\\networkobject.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{937789D6-6D5C-45DB-A621-267C98B1AB88}|Server\\Server.csproj|solutionrelative:server\\ingame\\networking\\networkobject.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{937789D6-6D5C-45DB-A621-267C98B1AB88}|Server\\Server.csproj|d:\\github\\lougelike\\server\\server\\ingame\\networking\\networkvariableserializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{937789D6-6D5C-45DB-A621-267C98B1AB88}|Server\\Server.csproj|solutionrelative:server\\ingame\\networking\\networkvariableserializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{937789D6-6D5C-45DB-A621-267C98B1AB88}|Server\\Server.csproj|d:\\github\\lougelike\\server\\server\\ingame\\networking\\networkprefebregister.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{937789D6-6D5C-45DB-A621-267C98B1AB88}|Server\\Server.csproj|solutionrelative:server\\ingame\\networking\\networkprefebregister.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{937789D6-6D5C-45DB-A621-267C98B1AB88}|Server\\Server.csproj|d:\\github\\lougelike\\server\\server\\ingame\\networking\\networkobjectmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{937789D6-6D5C-45DB-A621-267C98B1AB88}|Server\\Server.csproj|solutionrelative:server\\ingame\\networking\\networkobjectmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{937789D6-6D5C-45DB-A621-267C98B1AB88}|Server\\Server.csproj|d:\\github\\lougelike\\server\\server\\clientsession.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{937789D6-6D5C-45DB-A621-267C98B1AB88}|Server\\Server.csproj|solutionrelative:server\\clientsession.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{937789D6-6D5C-45DB-A621-267C98B1AB88}|Server\\Server.csproj|d:\\github\\lougelike\\server\\server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{937789D6-6D5C-45DB-A621-267C98B1AB88}|Server\\Server.csproj|solutionrelative:server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{937789D6-6D5C-45DB-A621-267C98B1AB88}|Server\\Server.csproj|d:\\github\\lougelike\\server\\server\\clientsessionmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{937789D6-6D5C-45DB-A621-267C98B1AB88}|Server\\Server.csproj|solutionrelative:server\\clientsessionmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 5,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:129:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{b1ce3aef-c78d-49ee-b72b-ec1fbc908313}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "NetworkPlayerTransform.cs",
+              "DocumentMoniker": "D:\\github\\Lougelike\\Server\\Server\\InGame\\Networking\\NetworkPlayerTransform.cs",
+              "RelativeDocumentMoniker": "Server\\InGame\\Networking\\NetworkPlayerTransform.cs",
+              "ToolTip": "D:\\github\\Lougelike\\Server\\Server\\InGame\\Networking\\NetworkPlayerTransform.cs",
+              "RelativeToolTip": "Server\\InGame\\Networking\\NetworkPlayerTransform.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAuwAoAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-08T05:09:05.321Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "NetworkPlayerState.cs",
+              "DocumentMoniker": "D:\\github\\Lougelike\\Server\\Server\\InGame\\Networking\\NetworkPlayerState.cs",
+              "RelativeDocumentMoniker": "Server\\InGame\\Networking\\NetworkPlayerState.cs",
+              "ToolTip": "D:\\github\\Lougelike\\Server\\Server\\InGame\\Networking\\NetworkPlayerState.cs",
+              "RelativeToolTip": "Server\\InGame\\Networking\\NetworkPlayerState.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-08T05:05:28.216Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "NetworkPrefebRegister.cs",
+              "DocumentMoniker": "D:\\github\\Lougelike\\Server\\Server\\InGame\\Networking\\NetworkPrefebRegister.cs",
+              "RelativeDocumentMoniker": "Server\\InGame\\Networking\\NetworkPrefebRegister.cs",
+              "ToolTip": "D:\\github\\Lougelike\\Server\\Server\\InGame\\Networking\\NetworkPrefebRegister.cs",
+              "RelativeToolTip": "Server\\InGame\\Networking\\NetworkPrefebRegister.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-08T03:26:58.453Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "NetworkObjectManager.cs",
+              "DocumentMoniker": "D:\\github\\Lougelike\\Server\\Server\\InGame\\Networking\\NetworkObjectManager.cs",
+              "RelativeDocumentMoniker": "Server\\InGame\\Networking\\NetworkObjectManager.cs",
+              "ToolTip": "D:\\github\\Lougelike\\Server\\Server\\InGame\\Networking\\NetworkObjectManager.cs",
+              "RelativeToolTip": "Server\\InGame\\Networking\\NetworkObjectManager.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAAAYwB8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-08T03:24:39.844Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "NetworkObject.cs",
+              "DocumentMoniker": "D:\\github\\Lougelike\\Server\\Server\\InGame\\Networking\\NetworkObject.cs",
+              "RelativeDocumentMoniker": "Server\\InGame\\Networking\\NetworkObject.cs",
+              "ToolTip": "D:\\github\\Lougelike\\Server\\Server\\InGame\\Networking\\NetworkObject.cs",
+              "RelativeToolTip": "Server\\InGame\\Networking\\NetworkObject.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-07T23:41:25.37Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "NetworkBehaviour.cs",
+              "DocumentMoniker": "D:\\github\\Lougelike\\Server\\Server\\InGame\\Networking\\NetworkBehaviour.cs",
+              "RelativeDocumentMoniker": "Server\\InGame\\Networking\\NetworkBehaviour.cs",
+              "ToolTip": "D:\\github\\Lougelike\\Server\\Server\\InGame\\Networking\\NetworkBehaviour.cs",
+              "RelativeToolTip": "Server\\InGame\\Networking\\NetworkBehaviour.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAAAQwCYAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-08T02:35:13.913Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "NetworkVariable.cs",
+              "DocumentMoniker": "D:\\github\\Lougelike\\Server\\Server\\InGame\\Networking\\NetworkVariable.cs",
+              "RelativeDocumentMoniker": "Server\\InGame\\Networking\\NetworkVariable.cs",
+              "ToolTip": "D:\\github\\Lougelike\\Server\\Server\\InGame\\Networking\\NetworkVariable.cs",
+              "RelativeToolTip": "Server\\InGame\\Networking\\NetworkVariable.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADEAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-08T00:28:07.661Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "NetworkVariableSerializer.cs",
+              "DocumentMoniker": "D:\\github\\Lougelike\\Server\\Server\\InGame\\Networking\\NetworkVariableSerializer.cs",
+              "RelativeDocumentMoniker": "Server\\InGame\\Networking\\NetworkVariableSerializer.cs",
+              "ToolTip": "D:\\github\\Lougelike\\Server\\Server\\InGame\\Networking\\NetworkVariableSerializer.cs",
+              "RelativeToolTip": "Server\\InGame\\Networking\\NetworkVariableSerializer.cs",
+              "ViewState": "AgIAACoAAAAAAAAAAAAYwEEAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-08T02:12:25.703Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "ClientSession.cs",
+              "DocumentMoniker": "D:\\github\\Lougelike\\Server\\Server\\ClientSession.cs",
+              "RelativeDocumentMoniker": "Server\\ClientSession.cs",
+              "ToolTip": "D:\\github\\Lougelike\\Server\\Server\\ClientSession.cs",
+              "RelativeToolTip": "Server\\ClientSession.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAzwCQAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-06T08:35:41.182Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "ClientSessionManager.cs",
+              "DocumentMoniker": "D:\\github\\Lougelike\\Server\\Server\\ClientSessionManager.cs",
+              "RelativeDocumentMoniker": "Server\\ClientSessionManager.cs",
+              "ToolTip": "D:\\github\\Lougelike\\Server\\Server\\ClientSessionManager.cs",
+              "RelativeToolTip": "Server\\ClientSessionManager.cs",
+              "ViewState": "AgIAACAAAAAAAAAAAAAgwGcAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-06T07:52:05.448Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\github\\Lougelike\\Server\\Server\\Program.cs",
+              "RelativeDocumentMoniker": "Server\\Program.cs",
+              "ToolTip": "D:\\github\\Lougelike\\Server\\Server\\Program.cs",
+              "RelativeToolTip": "Server\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAABQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-06T06:16:59.249Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+﻿using Server.InGame;
+using Server.NetworkContracts_Generater;
+using System.Collections.Concurrent;
+
+namespace Server.OutGame
+{
+    internal class LobbyService
+    {
+        readonly ClientSessionManager _sessionManager;
+        readonly ConcurrentDictionary<int, Lobby> _lobbies = new();
+        // clientId → 속한 roomId (빠른 역방향 조회)
+        readonly ConcurrentDictionary<int, int> _clientRoomMap = new();
+        readonly ConcurrentDictionary<int, RoomService> _rooms = new();
+
+        public LobbyService(ClientSessionManager clientSessionManager) 
+        {
+            _sessionManager = clientSessionManager;
+        }
+
+        public void Start()
+        {
+            _sessionManager.OnPacketReceived += OnPacketReceived;
+            _sessionManager.OnClientDisconnected += OnClientDisconnected;
+        }
+        void OnPacketReceived(int clientId, IPacket packet)
+        {
+            if (!_sessionManager.TryGetClientSession(clientId, out ClientSession session))
+                return;
+
+            switch (packet.PacketId)
+            {
+                case PacketId.C_CreateRoom:
+                    HandleCreateRoom(session, (C_CreateRoom)packet);
+                    break;
+                case PacketId.C_JoinRoom:
+                    HandleJoinRoom(session, (C_JoinRoom)packet);
+                    break;
+                default:
+                    break;
+            }
+        }
+        void HandleCreateRoom(ClientSession session, C_CreateRoom packet) // master client용 방 생성
+        {
+            if (_clientRoomMap.ContainsKey(session.ClientId))
+            {
+                session.Send(new S_RoomCreated { Success = false, ErrorMessage = "Already in a room." });
+                return;
+            }
+            if (_lobbies.ContainsKey(packet.RoomId))
+            {
+                session.Send(new S_RoomCreated { Success = false, ErrorMessage = "Room ID already exists." });
+                return;
+            }
+
+            var lobby = new Lobby(packet.RoomId, packet.MaxPlayers, session.ClientId);
+            _lobbies[packet.RoomId] = lobby;
+            _clientRoomMap[session.ClientId] = packet.RoomId;
+
+            session.Send(new S_RoomCreated { Success = true, Lobby = lobby.ToLobbyInfo() });
+        }
+
+        void HandleJoinRoom(ClientSession session,C_JoinRoom packet) // Guest client용 방 참가
+        {
+            if (!_lobbies.TryGetValue(packet.RoomId, out Lobby lobby))
+            {
+                session.Send(new S_PlayerJoined { Success = false, ErrorMessage = "Room not found." });
+                return;
+            }
+            if (!lobby.TryAddPlayer(session.ClientId))
+            {
+                session.Send(new S_PlayerJoined { Success = false, ErrorMessage = "Room is full." });
+                return;
+            }
+
+            _clientRoomMap[session.ClientId] = packet.RoomId;
+
+            Broadcast(lobby, new S_PlayerJoined { Success = true, Lobby = lobby.ToLobbyInfo() });
+
+            if (lobby.IsFull)
+                TransferToRoom(lobby);
+        }
+
+        void TransferToRoom(Lobby lobby)
+        {
+            var sessions = lobby.GetPlayerIds()
+                .Select(id => { _sessionManager.TryGetClientSession(id, out var s); return s; })
+                .Where(s => s != null)
+                .ToList();
+
+            if (!RoomService.TryCreate(lobby.RoomId, lobby.MasterClientId, sessions, _sessionManager, out RoomService room, out string error))
+            {
+                Console.WriteLine($"[LobbyService] RoomService 생성 실패: {error}");
+                return;
+            }
+
+            foreach (int id in lobby.GetPlayerIds())
+                _clientRoomMap.TryRemove(id, out _);
+            _lobbies.TryRemove(lobby.RoomId, out _);
+
+            room.Start();
+            _rooms[lobby.RoomId] = room;
+            Console.WriteLine($"[LobbyService] Room {lobby.RoomId} → RoomService 이관 완료");
+        }
+
+        void OnClientDisconnected(ClientSession session) // 클라이언트 접속 종료시 강제로 세션닫아버리기
+        {
+            if (!_clientRoomMap.TryRemove(session.ClientId, out int roomId)) return;
+            if (!_lobbies.TryGetValue(roomId, out Lobby lobby)) return;
+
+            int newMasterId = lobby.RemovePlayer(session.ClientId);
+            if (newMasterId == -1)
+            {
+                _lobbies.TryRemove(roomId, out _);
+                return;
+            }
+
+            Broadcast(lobby, new S_PlayerLeft
+            {
+                LeftClientId = session.ClientId,
+                NewMasterClientId = newMasterId,
+                Lobby = lobby.ToLobbyInfo()
+            });
+        }
+
+        void Broadcast(Lobby lobby, IPacket packet) // 클라이언트에게 동일 패킷 전송
+        {
+            foreach (int clientId in lobby.GetPlayerIds())
+                _sessionManager.Send(clientId, packet);
+        }
+    }
+}
