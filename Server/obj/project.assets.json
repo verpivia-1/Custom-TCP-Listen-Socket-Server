@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\github\\Lougelike\\Server\\Server\\Server.csproj",
+      "projectUniqueName": "D:\\github\\Lougelike\\Rougelike\\Server\\Server\\Server.csproj",
       "projectName": "Server",
-      "projectPath": "D:\\github\\Lougelike\\Server\\Server\\Server.csproj",
+      "projectPath": "D:\\github\\Lougelike\\Rougelike\\Server\\Server\\Server.csproj",
       "packagesPath": "C:\\Users\\cha\\.nuget\\packages\\",
-      "outputPath": "D:\\github\\Lougelike\\Server\\Server\\obj\\",
+      "outputPath": "D:\\github\\Lougelike\\Rougelike\\Server\\Server\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\cha\\AppData\\Roaming\\NuGet\\NuGet.Config",
