@@ -16,6 +16,8 @@ namespace Server.InGame
         bool _gameStarted = false;
 
         readonly Dictionary<int, int> _characterSelections = new(); // clientId → prefabIndex
+        readonly Dictionary<int, int> _lobbySpawnedObjects = new(); // clientId → networkObjectId (로비 스폰 추적)
+        readonly HashSet<int> _enteredClients = new();              // 배틀 씬 진입 완료 clientId
         readonly NetworkObjectManager _networkObjectManager;
         CancellationTokenSource _flushCts = new();
 
@@ -98,6 +100,8 @@ namespace Server.InGame
                     HandleSelectCharacter(session, (C_SelectCharacter)packet); break;
                 case PacketId.C_StartGame:
                     HandleStartGame(session, (C_StartGame)packet); break;
+                case PacketId.C_EnterNode:
+                    HandleEnterNode(session, (C_EnterNode)packet); break;
                 case PacketId.C_NetworkVarUpdate:
                     HandleNetworkVarUpdate(session, (C_NetworkVarUpdate)packet); break;
                 default:
@@ -117,10 +121,22 @@ namespace Server.InGame
         {
             if (_gameStarted) return;
 
+            // 이전 선택 캐릭터 교체 시 despawn
+            if (_lobbySpawnedObjects.TryGetValue(session.ClientId, out int oldObjId))
+            {
+                _networkObjectManager.Despawn(oldObjId);
+                _lobbySpawnedObjects.Remove(session.ClientId);
+            }
+
             _characterSelections[session.ClientId] = packet.PrefabIndex;
+
+            var obj = _networkObjectManager.Spawn(session.ClientId, packet.PrefabIndex);
+            if (obj != null)
+                _lobbySpawnedObjects[session.ClientId] = obj.NetworkObjectId;
+
             Broadcast(new S_CharacterSelected
             {
-                ClientId   = session.ClientId,
+                ClientId    = session.ClientId,
                 PrefabIndex = packet.PrefabIndex
             });
         }
@@ -132,18 +148,33 @@ namespace Server.InGame
 
             _gameStarted = true;
 
+            // 로비 스폰 오브젝트 정리 후 씬 전환 (Game 씬에서 C_EnterNode로 재스폰)
+            foreach (var objId in _lobbySpawnedObjects.Values.ToList())
+                _networkObjectManager.Despawn(objId);
+            _lobbySpawnedObjects.Clear();
+
             Broadcast(new S_SeedBroadcast { Seed = new Random().Next() });
             Broadcast(new S_GameStarted
             {
                 ThemaId = _selectedThemaId,
                 Lobby   = BuildLobbyInfo()
             });
+        }
 
-            // 각 클라이언트의 선택 캐릭터로 NetworkObject 스폰
-            foreach (var s in _sessions.Values)
+        void HandleEnterNode(ClientSession session, C_EnterNode packet)
+        {
+            if (!_enteredClients.Add(session.ClientId)) return; // 중복 진입 무시
+
+            // 먼저 이 클라이언트의 캐릭터를 스폰 (전체 브로드캐스트)
+            if (_characterSelections.TryGetValue(session.ClientId, out int prefabIndex))
+                _networkObjectManager.Spawn(session.ClientId, prefabIndex);
+
+            // 이미 스폰된 다른 오브젝트 목록을 이 클라이언트에게만 전송 (늦은 진입 동기화)
+            foreach (var obj in _networkObjectManager.SpawnedObjects.Values)
             {
-                if (!_characterSelections.TryGetValue(s.ClientId, out int prefabIndex)) continue;
-                _networkObjectManager.Spawn(s.ClientId, prefabIndex);
+                // 방금 스폰된 자신의 오브젝트는 Broadcast로 이미 전달됨 — 중복 제외
+                if (obj.OwnerClientId == session.ClientId) continue;
+                session.Send(new S_ObjectSpawned { ObjectInfo = obj.ToSpawnedObjectInfo() });
             }
         }
 
@@ -156,6 +187,20 @@ namespace Server.InGame
         {
             _sessions.TryRemove(clientId, out _);
             Console.WriteLine($"[RoomService] Client {clientId} disconnected. Remaining: {_sessions.Count}");
+
+            if (_sessions.Count > 0)
+            {
+                int newMaster = _sessions.ContainsKey(_masterClientId)
+                    ? -1
+                    : _sessions.Keys.First();
+
+                Broadcast(new S_PlayerLeft
+                {
+                    LeftClientId      = clientId,
+                    NewMasterClientId = newMaster,
+                    Lobby             = BuildLobbyInfo()
+                });
+            }
 
             if (_sessions.Count == 0)
                 Stop();
