@@ -43,11 +43,13 @@ namespace Server.OutGame
         {
             if (_clientRoomMap.ContainsKey(session.ClientId))
             {
+                Console.WriteLine($"[Lobby] Client {session.ClientId} → Master 요청 실패: 이미 방에 있음");
                 session.Send(new S_RoomCreated { Success = false, ErrorMessage = "Already in a room." });
                 return;
             }
             if (_lobbies.ContainsKey(packet.RoomId))
             {
+                Console.WriteLine($"[Lobby] Client {session.ClientId} → Master 요청 실패: RoomId={packet.RoomId} 이미 존재");
                 session.Send(new S_RoomCreated { Success = false, ErrorMessage = "Room ID already exists." });
                 return;
             }
@@ -56,24 +58,28 @@ namespace Server.OutGame
             _lobbies[packet.RoomId] = lobby;
             _clientRoomMap[session.ClientId] = packet.RoomId;
 
+            Console.WriteLine($"[Lobby] Client {session.ClientId} → Master | RoomId={packet.RoomId} MaxPlayers={packet.MaxPlayers}");
             session.Send(new S_RoomCreated { Success = true, Lobby = lobby.ToLobbyInfo() });
         }
 
-        void HandleJoinRoom(ClientSession session,C_JoinRoom packet) // Guest client용 방 참가
+        void HandleJoinRoom(ClientSession session, C_JoinRoom packet) // Guest client용 방 참가
         {
             if (!_lobbies.TryGetValue(packet.RoomId, out Lobby lobby))
             {
+                Console.WriteLine($"[Lobby] Client {session.ClientId} → Guest 요청 실패: RoomId={packet.RoomId} 없음");
                 session.Send(new S_PlayerJoined { Success = false, ErrorMessage = "Room not found." });
                 return;
             }
             if (!lobby.TryAddPlayer(session.ClientId))
             {
+                Console.WriteLine($"[Lobby] Client {session.ClientId} → Guest 요청 실패: RoomId={packet.RoomId} 방 꽉 참");
                 session.Send(new S_PlayerJoined { Success = false, ErrorMessage = "Room is full." });
                 return;
             }
 
             _clientRoomMap[session.ClientId] = packet.RoomId;
 
+            Console.WriteLine($"[Lobby] Client {session.ClientId} → Guest  | RoomId={packet.RoomId} 현재인원={lobby.PlayerCount}/{lobby.MaxPlayers}");
             Broadcast(lobby, new S_PlayerJoined { Success = true, Lobby = lobby.ToLobbyInfo() });
 
             if (lobby.IsFull)
