@@ -479,6 +479,12 @@ namespace Server.NetworkContracts_Generater
         {
         }
     }
+    public sealed class C_RequestLobbySync : IPacket
+    {
+        public PacketId PacketId => PacketId.C_RequestLobbySync;
+        public void Serialize(BinaryWriter writer) { }
+        public void Deserialize(BinaryReader reader) { }
+    }
     public sealed class S_GameStarted : IPacket
     {
         public PacketId PacketId => PacketId.S_GameStarted;

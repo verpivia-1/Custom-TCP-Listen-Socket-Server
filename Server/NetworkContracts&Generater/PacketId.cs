@@ -22,6 +22,7 @@ namespace Server.NetworkContracts_Generater
         S_GameStarted = 0x0009,        // Server → All
         C_SelectCharacter = 0x000A,    // Client → Server (캐릭터 선택)
         S_CharacterSelected = 0x000B,  // Server → All (누가 어떤 캐릭터 골랐는지)
+        C_RequestLobbySync = 0x000C,   // Client → Server (로비 씬 진입 시 상태 동기화 요청)
 
         // NodeSelect
         C_EnterNode = 0x1001,          // Client(Master) → Server

@@ -65,6 +65,14 @@ namespace Server.InGame
             _ = FlushLoop(_flushCts.Token);
         }
 
+        // 게스트 참가 시 호출 — 세션 등록만 수행. 상태 동기화는 C_RequestLobbySync로 처리
+        public void AddSession(ClientSession session)
+        {
+            _sessions[session.ClientId] = session;
+            session.OnDisconnected += OnDisconnected;
+            Console.WriteLine($"[RoomService] Session {session.ClientId} added. Total: {_sessions.Count}");
+        }
+
         void Stop()
         {
             _flushCts.Cancel();
@@ -104,9 +112,20 @@ namespace Server.InGame
                     HandleEnterNode(session, (C_EnterNode)packet); break;
                 case PacketId.C_NetworkVarUpdate:
                     HandleNetworkVarUpdate(session, (C_NetworkVarUpdate)packet); break;
+                case PacketId.C_RequestLobbySync:
+                    HandleRequestLobbySync(session); break;
                 default:
                     break;
             }
+        }
+
+        void HandleRequestLobbySync(ClientSession session)
+        {
+            foreach (var (clientId, prefabIndex) in _characterSelections)
+                session.Send(new S_CharacterSelected { ClientId = clientId, PrefabIndex = prefabIndex });
+
+            foreach (var obj in _networkObjectManager.SpawnedObjects.Values)
+                session.Send(new S_ObjectSpawned { ObjectInfo = obj.ToSpawnedObjectInfo() });
         }
 
         void HandleSelectThema(ClientSession session, C_SelectThema packet)

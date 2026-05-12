@@ -23,6 +23,7 @@ namespace Server.NetworkContracts_Generater
                 PacketId.S_GameStarted => new S_GameStarted(),
                 PacketId.C_SelectCharacter  => new C_SelectCharacter(),
                 PacketId.S_CharacterSelected => new S_CharacterSelected(),
+                PacketId.C_RequestLobbySync => new C_RequestLobbySync(),
 
                 PacketId.C_EnterNode => new C_EnterNode(),
                 PacketId.S_NodeEntered => new S_NodeEntered(),
