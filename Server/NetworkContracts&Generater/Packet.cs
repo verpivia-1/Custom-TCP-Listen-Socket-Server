@@ -494,13 +494,17 @@ namespace Server.NetworkContracts_Generater
         public void Serialize(BinaryWriter writer)
         {
             writer.Write(ThemaId);
+            writer.Write(Lobby != null);
             Lobby?.Serialize(writer);
         }
         public void Deserialize(BinaryReader reader)
         {
             ThemaId = reader.ReadString();
-            Lobby = new LobbyInfo();
-            Lobby.Deserialize(reader);
+            if (reader.ReadBoolean())
+            {
+                Lobby = new LobbyInfo();
+                Lobby.Deserialize(reader);
+            }
         }
     }
     #endregion
