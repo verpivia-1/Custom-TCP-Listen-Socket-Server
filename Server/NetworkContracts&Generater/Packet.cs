@@ -227,17 +227,20 @@ namespace Server.NetworkContracts_Generater
         public int StageId { get; set; }
         public string NodeType { get; set; }
         public uint BattleSeed { get; set; }
+        public int Column { get; set; }
         public void Serialize(BinaryWriter writer)
         {
             writer.Write(StageId);
             writer.Write(NodeType);
             writer.Write(BattleSeed);
+            writer.Write(Column);
         }
         public void Deserialize(BinaryReader reader)
         {
             StageId = reader.ReadInt32();
             NodeType = reader.ReadString();
             BattleSeed = reader.ReadUInt32();
+            Column = reader.ReadInt32();
         }
     }
     public sealed class C_SuggestNode : IPacket
@@ -257,8 +260,6 @@ namespace Server.NetworkContracts_Generater
             NodeType = reader.ReadString();
             Column = reader.ReadInt32();
         }
-
-
     }
     public sealed class S_NodeSuggested : IPacket
     {
@@ -277,6 +278,20 @@ namespace Server.NetworkContracts_Generater
             NodeType = reader.ReadString();
             Column = reader.ReadInt32();
         }
+    }
+    public sealed class C_BattleClear : IPacket
+    {
+        public PacketId PacketId => PacketId.C_BattleClear;
+        public int Column { get; set; }
+        public void Serialize(BinaryWriter writer) => writer.Write(Column);
+        public void Deserialize(BinaryReader reader) => Column = reader.ReadInt32();
+    }
+    public sealed class S_BattleCleared : IPacket
+    {
+        public PacketId PacketId => PacketId.S_BattleCleared;
+        public int Column { get; set; }
+        public void Serialize(BinaryWriter writer) => writer.Write(Column);
+        public void Deserialize(BinaryReader reader) => Column = reader.ReadInt32();
     }
     #endregion
 

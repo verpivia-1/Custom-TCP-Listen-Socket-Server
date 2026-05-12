@@ -29,6 +29,8 @@ namespace Server.NetworkContracts_Generater
         S_NodeEntered = 0x1002,        // Server → All (진입 확정 브로드캐스트)
         C_SuggestNode = 0x1003,        // Client(Guest) → Server
         S_NodeSuggested = 0x1004,      // Server → Client(Master) only
+        C_BattleClear = 0x1005,        // Client → Server (배틀 클리어 신호)
+        S_BattleCleared = 0x1006,      // Server → All (배틀 클리어 브로드캐스트)
 
         // Game
         S_SeedBroadcast = 0x2001,      // Server → All

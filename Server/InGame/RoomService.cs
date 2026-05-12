@@ -17,7 +17,10 @@ namespace Server.InGame
 
         readonly Dictionary<int, int> _characterSelections = new(); // clientId → prefabIndex
         readonly Dictionary<int, int> _lobbySpawnedObjects = new(); // clientId → networkObjectId (로비 스폰 추적)
-        readonly HashSet<int> _enteredClients = new();              // 배틀 씬 진입 완료 clientId
+        readonly HashSet<int> _enteredClients = new();              // Game 씬 진입 완료 clientId
+        bool _nodeEntered = false;                                  // Phase 1 완료 플래그
+        bool _battleCleared = false;                                // 배틀 클리어 중복 방지
+        readonly HashSet<int> _battleClearedSenders = new();       // 클리어 신호를 보낸 clientId
         readonly NetworkObjectManager _networkObjectManager;
         CancellationTokenSource _flushCts = new();
 
@@ -110,6 +113,10 @@ namespace Server.InGame
                     HandleStartGame(session, (C_StartGame)packet); break;
                 case PacketId.C_EnterNode:
                     HandleEnterNode(session, (C_EnterNode)packet); break;
+                case PacketId.C_SuggestNode:
+                    HandleSuggestNode(session, (C_SuggestNode)packet); break;
+                case PacketId.C_BattleClear:
+                    HandleBattleClear(session, (C_BattleClear)packet); break;
                 case PacketId.C_NetworkVarUpdate:
                     HandleNetworkVarUpdate(session, (C_NetworkVarUpdate)packet); break;
                 case PacketId.C_RequestLobbySync:
@@ -182,19 +189,59 @@ namespace Server.InGame
 
         void HandleEnterNode(ClientSession session, C_EnterNode packet)
         {
-            if (!_enteredClients.Add(session.ClientId)) return; // 중복 진입 무시
+            if (!_nodeEntered)
+            {
+                // Phase 1: NodeSelect에서 마스터가 전송 → S_NodeEntered 브로드캐스트 (씬 전환만, 스폰 없음)
+                if (session.ClientId != _masterClientId) return;
+                _nodeEntered = true;
+                // 이전 배틀 클리어 상태 초기화
+                _battleCleared = false;
+                _battleClearedSenders.Clear();
+                uint battleSeed = (uint)new Random().Next();
+                Broadcast(new S_NodeEntered
+                {
+                    StageId    = packet.StageId,
+                    NodeType   = packet.NodeType,
+                    BattleSeed = battleSeed,
+                    Column     = packet.Column
+                });
+                return;
+            }
 
-            // 먼저 이 클라이언트의 캐릭터를 스폰 (전체 브로드캐스트)
+            // Phase 2: Game 씬에서 각 클라이언트가 전송 → 캐릭터 스폰 + 늦은 진입 동기화
+            if (!_enteredClients.Add(session.ClientId)) return;
+
             if (_characterSelections.TryGetValue(session.ClientId, out int prefabIndex))
                 _networkObjectManager.Spawn(session.ClientId, prefabIndex);
 
-            // 이미 스폰된 다른 오브젝트 목록을 이 클라이언트에게만 전송 (늦은 진입 동기화)
             foreach (var obj in _networkObjectManager.SpawnedObjects.Values)
             {
-                // 방금 스폰된 자신의 오브젝트는 Broadcast로 이미 전달됨 — 중복 제외
                 if (obj.OwnerClientId == session.ClientId) continue;
                 session.Send(new S_ObjectSpawned { ObjectInfo = obj.ToSpawnedObjectInfo() });
             }
+        }
+
+        void HandleSuggestNode(ClientSession session, C_SuggestNode packet)
+        {
+            if (session.ClientId == _masterClientId) return;
+            if (_sessions.TryGetValue(_masterClientId, out var masterSession))
+                masterSession.Send(new S_NodeSuggested { NodeType = packet.NodeType, Column = packet.Column });
+        }
+
+        void HandleBattleClear(ClientSession session, C_BattleClear packet)
+        {
+            if (!_battleClearedSenders.Add(session.ClientId)) return; // 중복 전송 무시
+            if (_battleCleared) return;                                // 이미 처리됨
+
+            _battleCleared = true;
+            _nodeEntered = false;
+            _enteredClients.Clear();
+
+            // 스폰된 NetworkObject 전부 정리 (S_ObjectDespawned 브로드캐스트)
+            foreach (var objId in _networkObjectManager.SpawnedObjects.Keys.ToList())
+                _networkObjectManager.Despawn(objId);
+
+            Broadcast(new S_BattleCleared { Column = packet.Column });
         }
 
         void HandleNetworkVarUpdate(ClientSession session, C_NetworkVarUpdate packet)

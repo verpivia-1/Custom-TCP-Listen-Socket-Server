@@ -29,6 +29,8 @@ namespace Server.NetworkContracts_Generater
                 PacketId.S_NodeEntered => new S_NodeEntered(),
                 PacketId.C_SuggestNode => new C_SuggestNode(),
                 PacketId.S_NodeSuggested => new S_NodeSuggested(),
+                PacketId.C_BattleClear => new C_BattleClear(),
+                PacketId.S_BattleCleared => new S_BattleCleared(),
 
                 PacketId.S_SeedBroadcast => new S_SeedBroadcast(),
 
