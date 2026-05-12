@@ -10,7 +10,7 @@ namespace Server.InGame
 
         readonly ClientSessionManager _sessionManager;
         readonly ConcurrentDictionary<int, ClientSession> _sessions;
-        readonly int _masterClientId;
+        int _masterClientId;
 
         string _selectedThemaId = string.Empty;
         bool _gameStarted = false;
@@ -188,11 +188,24 @@ namespace Server.InGame
             _sessions.TryRemove(clientId, out _);
             Console.WriteLine($"[RoomService] Client {clientId} disconnected. Remaining: {_sessions.Count}");
 
+            // 로비 스폰 오브젝트 despawn (S_ObjectDespawned 브로드캐스트)
+            if (_lobbySpawnedObjects.TryGetValue(clientId, out int objId))
+            {
+                _networkObjectManager.Despawn(objId);
+                _lobbySpawnedObjects.Remove(clientId);
+            }
+
+            _characterSelections.Remove(clientId);
+            _enteredClients.Remove(clientId);
+
             if (_sessions.Count > 0)
             {
                 int newMaster = _sessions.ContainsKey(_masterClientId)
                     ? -1
                     : _sessions.Keys.First();
+
+                if (newMaster != -1)
+                    _masterClientId = newMaster;
 
                 Broadcast(new S_PlayerLeft
                 {
