@@ -127,6 +127,7 @@ namespace Server.OutGame
             if (!_lobbies.TryRemove(roomId, out Lobby lobby)) return;
             foreach (int id in lobby.GetPlayerIds())
                 _clientRoomMap.TryRemove(id, out _);
+            _rooms.TryRemove(roomId, out _);
             Console.WriteLine($"[Lobby] Room {roomId} 게임 시작 — Lobby 해제");
         }
 

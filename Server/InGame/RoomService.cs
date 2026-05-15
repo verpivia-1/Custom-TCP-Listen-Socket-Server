@@ -207,6 +207,10 @@ namespace Server.InGame
                     BattleSeed = battleSeed,
                     Column     = packet.Column
                 });
+                // Attrito/Apice 이외의 노드(샵·이벤트 등)는 Game 씬 로드가 없어
+                // Phase2 C_EnterNode(col=0)가 오지 않으므로 즉시 리셋
+                if (packet.NodeType != "Attrito" && packet.NodeType != "Apice")
+                    _nodeEntered = false;
                 return;
             }
 
