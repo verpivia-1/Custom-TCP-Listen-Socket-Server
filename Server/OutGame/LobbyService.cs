@@ -61,6 +61,8 @@ namespace Server.OutGame
             // 마스터 단독으로 즉시 RoomService 생성 → 게스트 없이도 캐릭터 선택·스폰 가능
             if (RoomService.TryCreate(packet.RoomId, session.ClientId, new List<ClientSession> { session }, _sessionManager, out RoomService room, out string error))
             {
+                int roomId = packet.RoomId;
+                room.OnGameStarted += () => CleanupRoom(roomId);
                 room.Start();
                 _rooms[packet.RoomId] = room;
             }
@@ -96,15 +98,6 @@ namespace Server.OutGame
 
             Console.WriteLine($"[Lobby] Client {session.ClientId} → Guest  | RoomId={packet.RoomId} 현재인원={lobby.PlayerCount}/{lobby.MaxPlayers}");
             Broadcast(lobby, new S_PlayerJoined { Success = true, Lobby = lobby.ToLobbyInfo() });
-
-            // 로비가 가득 찼으면 더 이상 참가 불가 → _lobbies·_clientRoomMap 정리
-            if (lobby.IsFull)
-            {
-                foreach (int id in lobby.GetPlayerIds())
-                    _clientRoomMap.TryRemove(id, out _);
-                _lobbies.TryRemove(lobby.RoomId, out _);
-                Console.WriteLine($"[Lobby] Room {lobby.RoomId} 정원 완료 — Lobby 해제");
-            }
         }
 
         void OnClientDisconnected(ClientSession session) // 클라이언트 접속 종료시 강제로 세션닫아버리기
@@ -126,6 +119,15 @@ namespace Server.OutGame
                 NewMasterClientId = newMasterId,
                 Lobby = lobby.ToLobbyInfo()
             });
+        }
+
+        // 게임 시작 시 호출 — _lobbies·_clientRoomMap 정리로 이후 인게임 disconnect를 RoomService가 단독 처리
+        void CleanupRoom(int roomId)
+        {
+            if (!_lobbies.TryRemove(roomId, out Lobby lobby)) return;
+            foreach (int id in lobby.GetPlayerIds())
+                _clientRoomMap.TryRemove(id, out _);
+            Console.WriteLine($"[Lobby] Room {roomId} 게임 시작 — Lobby 해제");
         }
 
         void Broadcast(Lobby lobby, IPacket packet) // 클라이언트에게 동일 패킷 전송

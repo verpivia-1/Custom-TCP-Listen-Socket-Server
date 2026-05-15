@@ -7,6 +7,7 @@ namespace Server.InGame
     internal class RoomService
     {
         public int RoomId { get; }
+        public event Action OnGameStarted;
 
         readonly ClientSessionManager _sessionManager;
         readonly ConcurrentDictionary<int, ClientSession> _sessions;
@@ -173,6 +174,7 @@ namespace Server.InGame
             if (_gameStarted) return;
 
             _gameStarted = true;
+            OnGameStarted?.Invoke();
 
             // 로비 스폰 오브젝트 정리 후 씬 전환 (Game 씬에서 C_EnterNode로 재스폰)
             foreach (var objId in _lobbySpawnedObjects.Values.ToList())
@@ -230,6 +232,7 @@ namespace Server.InGame
 
         void HandleBattleClear(ClientSession session, C_BattleClear packet)
         {
+            if (!_nodeEntered) return;                                 // 전투 미시작 상태에서 수신 시 무시
             if (!_battleClearedSenders.Add(session.ClientId)) return; // 중복 전송 무시
             if (_battleCleared) return;                                // 이미 처리됨
 
