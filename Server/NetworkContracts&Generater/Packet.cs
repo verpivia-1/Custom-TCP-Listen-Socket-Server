@@ -344,6 +344,37 @@ namespace Server.NetworkContracts_Generater
     }
     #endregion
 
+    #region Monster
+    public sealed class C_SpawnMonsters : IPacket
+    {
+        public PacketId PacketId => PacketId.C_SpawnMonsters;
+        public int PrefabIndex { get; set; }
+        public float[] PosX { get; set; } = Array.Empty<float>();
+        public float[] PosY { get; set; } = Array.Empty<float>();
+        public void Serialize(BinaryWriter writer)
+        {
+            writer.Write(PrefabIndex);
+            writer.Write(PosX.Length);
+            for (int i = 0; i < PosX.Length; i++) { writer.Write(PosX[i]); writer.Write(PosY[i]); }
+        }
+        public void Deserialize(BinaryReader reader)
+        {
+            PrefabIndex = reader.ReadInt32();
+            int count = reader.ReadInt32();
+            PosX = new float[count]; PosY = new float[count];
+            for (int i = 0; i < count; i++) { PosX[i] = reader.ReadSingle(); PosY[i] = reader.ReadSingle(); }
+        }
+    }
+    public sealed class C_MonsterHit : IPacket
+    {
+        public PacketId PacketId => PacketId.C_MonsterHit;
+        public int ObjectId { get; set; }
+        public float Damage { get; set; }
+        public void Serialize(BinaryWriter writer) { writer.Write(ObjectId); writer.Write(Damage); }
+        public void Deserialize(BinaryReader reader) { ObjectId = reader.ReadInt32(); Damage = reader.ReadSingle(); }
+    }
+    #endregion
+
     #region
     public sealed class C_CreateRoom : IPacket
     {
@@ -499,6 +530,20 @@ namespace Server.NetworkContracts_Generater
         public PacketId PacketId => PacketId.C_RequestLobbySync;
         public void Serialize(BinaryWriter writer) { }
         public void Deserialize(BinaryReader reader) { }
+    }
+    public sealed class C_GuestReady : IPacket
+    {
+        public PacketId PacketId => PacketId.C_GuestReady;
+        public bool IsReady { get; set; }
+        public void Serialize(BinaryWriter writer) => writer.Write(IsReady);
+        public void Deserialize(BinaryReader reader) => IsReady = reader.ReadBoolean();
+    }
+    public sealed class S_GuestReady : IPacket
+    {
+        public PacketId PacketId => PacketId.S_GuestReady;
+        public bool IsReady { get; set; }
+        public void Serialize(BinaryWriter writer) => writer.Write(IsReady);
+        public void Deserialize(BinaryReader reader) => IsReady = reader.ReadBoolean();
     }
     public sealed class S_GameStarted : IPacket
     {

@@ -24,6 +24,8 @@ namespace Server.NetworkContracts_Generater
                 PacketId.C_SelectCharacter  => new C_SelectCharacter(),
                 PacketId.S_CharacterSelected => new S_CharacterSelected(),
                 PacketId.C_RequestLobbySync => new C_RequestLobbySync(),
+                PacketId.C_GuestReady => new C_GuestReady(),
+                PacketId.S_GuestReady => new S_GuestReady(),
 
                 PacketId.C_EnterNode => new C_EnterNode(),
                 PacketId.S_NodeEntered => new S_NodeEntered(),
@@ -38,6 +40,9 @@ namespace Server.NetworkContracts_Generater
                 PacketId.S_ObjectDespawned  => new S_ObjectDespawned(),
                 PacketId.C_NetworkVarUpdate => new C_NetworkVarUpdate(),
                 PacketId.S_NetworkVarUpdate => new S_NetworkVarUpdate(),
+
+                PacketId.C_SpawnMonsters => new C_SpawnMonsters(),
+                PacketId.C_MonsterHit    => new C_MonsterHit(),
 
                 PacketId.S_ConnectionSuccess => new S_ConnectionSuccess(),
                 PacketId.S_ConnectionFailed => new S_ConnectionFailed(),

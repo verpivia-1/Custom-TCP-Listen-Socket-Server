@@ -23,6 +23,8 @@ namespace Server.NetworkContracts_Generater
         C_SelectCharacter = 0x000A,    // Client → Server (캐릭터 선택)
         S_CharacterSelected = 0x000B,  // Server → All (누가 어떤 캐릭터 골랐는지)
         C_RequestLobbySync = 0x000C,   // Client → Server (로비 씬 진입 시 상태 동기화 요청)
+        C_GuestReady = 0x000D,         // Client(Guest) → Server (준비 상태 토글)
+        S_GuestReady = 0x000E,         // Server → Client(Master) (게스트 준비 상태 전달)
 
         // NodeSelect
         C_EnterNode = 0x1001,          // Client(Master) → Server
@@ -40,6 +42,10 @@ namespace Server.NetworkContracts_Generater
         S_ObjectDespawned  = 0x4002,   // Server → All (오브젝트 제거)
         C_NetworkVarUpdate = 0x4003,   // Client(Owner) → Server (변수 갱신 요청)
         S_NetworkVarUpdate = 0x4004,   // Server → All except sender (변수 갱신 브로드캐스트)
+
+        // Monster
+        C_SpawnMonsters = 0x5001,      // Client(Master) → Server (몬스터 스폰 위치 전송)
+        C_MonsterHit    = 0x5002,      // Client → Server (플레이어 공격으로 몬스터 피격)
 
         // Connection
         S_ConnectionSuccess = 0x3001,  // Server => Client

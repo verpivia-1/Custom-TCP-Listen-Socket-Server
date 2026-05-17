@@ -23,7 +23,7 @@ namespace Server.InGame.Networking
             _broadcastExcept  = broadcastExcept;
         }
 
-        public NetworkObject Spawn(int clientId, int prefabIndex)
+        public NetworkObject Spawn(int clientId, int prefabIndex, Action<NetworkObject> setup = null)
         {
             if (!_prefabRegistry.TryGetFactory(prefabIndex, out string prefabName, out var factory))
                 return null;
@@ -39,6 +39,7 @@ namespace Server.InGame.Networking
             _objects[obj.NetworkObjectId] = obj;
             obj.IsSpawned = true;
             obj.NotifySpawn();
+            setup?.Invoke(obj);
 
             _broadcast(new S_ObjectSpawned { ObjectInfo = obj.ToSpawnedObjectInfo() });
             return obj;

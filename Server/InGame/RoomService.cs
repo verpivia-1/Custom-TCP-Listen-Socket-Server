@@ -1,6 +1,7 @@
 using Server.InGame.Networking;
 using Server.NetworkContracts_Generater;
 using System.Collections.Concurrent;
+using System.Numerics;
 
 namespace Server.InGame
 {
@@ -25,6 +26,18 @@ namespace Server.InGame
         readonly NetworkObjectManager _networkObjectManager;
         CancellationTokenSource _flushCts = new();
 
+        readonly ConcurrentDictionary<int, MonsterEntry> _monsters = new();
+        bool _monsterSpawned = false;
+
+        record MonsterEntry(
+            NetworkObject Obj,
+            MonsterFSM Fsm,
+            NetworkMonsterTransform Transform,
+            NetworkMonsterState MonsterState,
+            float MoveSpeed,
+            float AttackDamage
+        );
+
         RoomService(int roomId, int masterClientId, List<ClientSession> sessions, ClientSessionManager sessionManager)
         {
             RoomId = roomId;
@@ -33,8 +46,9 @@ namespace Server.InGame
             _sessions = new ConcurrentDictionary<int, ClientSession>(sessions.ToDictionary(s => s.ClientId));
 
             var registry = new NetworkPrefabRegistry();
-            registry.Register(0, "Knight",  () => new NetworkBehaviour[] { new NetworkPlayerTransform(), new NetworkPlayerState(80f)  });
-            registry.Register(1, "Veteran", () => new NetworkBehaviour[] { new NetworkPlayerTransform(), new NetworkPlayerState(120f) });
+            registry.Register(0, "Knight",        () => new NetworkBehaviour[] { new NetworkPlayerTransform(), new NetworkPlayerState(80f)   });
+            registry.Register(1, "Veteran",       () => new NetworkBehaviour[] { new NetworkPlayerTransform(), new NetworkPlayerState(120f)  });
+            registry.Register(2, "DimensionShard",() => new NetworkBehaviour[] { new NetworkMonsterTransform(), new NetworkMonsterState(100f) });
 
             _networkObjectManager = new NetworkObjectManager(registry, Broadcast, BroadcastExcept);
         }
@@ -67,6 +81,7 @@ namespace Server.InGame
                 session.OnDisconnected += OnDisconnected;
 
             _ = FlushLoop(_flushCts.Token);
+            _ = MonsterLoop(_flushCts.Token);
         }
 
         // 게스트 참가 시 호출 — 세션 등록만 수행. 상태 동기화는 C_RequestLobbySync로 처리
@@ -118,13 +133,26 @@ namespace Server.InGame
                     HandleSuggestNode(session, (C_SuggestNode)packet); break;
                 case PacketId.C_BattleClear:
                     HandleBattleClear(session, (C_BattleClear)packet); break;
+                case PacketId.C_SpawnMonsters:
+                    HandleSpawnMonsters(session, (C_SpawnMonsters)packet); break;
+                case PacketId.C_MonsterHit:
+                    HandleMonsterHit(session, (C_MonsterHit)packet); break;
                 case PacketId.C_NetworkVarUpdate:
                     HandleNetworkVarUpdate(session, (C_NetworkVarUpdate)packet); break;
+                case PacketId.C_GuestReady:
+                    HandleGuestReady(session, (C_GuestReady)packet); break;
                 case PacketId.C_RequestLobbySync:
                     HandleRequestLobbySync(session); break;
                 default:
                     break;
             }
+        }
+
+        void HandleGuestReady(ClientSession session, C_GuestReady packet)
+        {
+            if (session.ClientId == _masterClientId) return;
+            if (_sessions.TryGetValue(_masterClientId, out var masterSession))
+                masterSession.Send(new S_GuestReady { IsReady = packet.IsReady });
         }
 
         void HandleRequestLobbySync(ClientSession session)
@@ -242,13 +270,150 @@ namespace Server.InGame
 
             _battleCleared = true;
             _nodeEntered = false;
+            _monsterSpawned = false;
             _enteredClients.Clear();
+            _monsters.Clear();
 
             // 스폰된 NetworkObject 전부 정리 (S_ObjectDespawned 브로드캐스트)
             foreach (var objId in _networkObjectManager.SpawnedObjects.Keys.ToList())
                 _networkObjectManager.Despawn(objId);
 
             Broadcast(new S_BattleCleared { Column = packet.Column });
+        }
+
+        void HandleSpawnMonsters(ClientSession session, C_SpawnMonsters packet)
+        {
+            if (session.ClientId != _masterClientId) return;
+            if (!_nodeEntered) return;
+            if (_monsterSpawned) return;
+            _monsterSpawned = true;
+
+            for (int i = 0; i < packet.PosX.Length; i++)
+            {
+                var pos = new Vector3(packet.PosX[i], packet.PosY[i], 0f);
+                var obj = _networkObjectManager.Spawn(-1, packet.PrefabIndex, netObj =>
+                {
+                    if (netObj.Behaviours.Count > 0 && netObj.Behaviours[0] is NetworkMonsterTransform mt)
+                        mt.Position.Value = pos;
+                });
+                if (obj == null) continue;
+
+                var fsm             = new MonsterFSM(6.0f, 1.2f, 1.5f);
+                var monsterTransform = (NetworkMonsterTransform)obj.Behaviours[0];
+                var monsterState     = (NetworkMonsterState)obj.Behaviours[1];
+                var entry = new MonsterEntry(obj, fsm, monsterTransform, monsterState, 3.0f, 10f);
+
+                fsm.OnStateChanged += newState => monsterState.State.Value = (int)newState;
+                fsm.OnAttack += () =>
+                {
+                    var players = CollectPlayerData();
+                    if (players.Count == 0) return;
+                    var (_, ps) = FindNearestPlayer(entry.Transform.Position.Value, players);
+                    DealDamage(ps, entry.AttackDamage);
+                };
+
+                _monsters[obj.NetworkObjectId] = entry;
+                Console.WriteLine($"[RoomService] Monster spawned: objId={obj.NetworkObjectId} pos={pos}");
+            }
+        }
+
+        void HandleMonsterHit(ClientSession session, C_MonsterHit packet)
+        {
+            if (!_monsters.TryGetValue(packet.ObjectId, out var entry)) return;
+            if (entry.Fsm.State == MonsterState.Dead) return;
+
+            float newHp = MathF.Max(entry.MonsterState.Hp.Value - packet.Damage, 0f);
+            entry.MonsterState.Hp.Value = newHp;
+
+            if (newHp <= 0f)
+            {
+                entry.Fsm.Kill();
+                _monsters.TryRemove(packet.ObjectId, out _);
+                _networkObjectManager.Despawn(packet.ObjectId);
+            }
+        }
+
+        async Task MonsterLoop(CancellationToken ct)
+        {
+            const float dt = 0.1f;
+            try
+            {
+                while (!ct.IsCancellationRequested)
+                {
+                    TickMonsters(dt);
+                    await Task.Delay(100, ct);
+                }
+            }
+            catch (TaskCanceledException) { }
+        }
+
+        void TickMonsters(float dt)
+        {
+            if (_monsters.IsEmpty) return;
+
+            var players = CollectPlayerData();
+
+            foreach (var entry in _monsters.Values)
+            {
+                if (entry.Fsm.State == MonsterState.Dead) continue;
+                if (!_networkObjectManager.SpawnedObjects.ContainsKey(entry.Obj.NetworkObjectId)) continue;
+
+                if (players.Count == 0)
+                {
+                    entry.Fsm.Tick(float.MaxValue, dt);
+                    continue;
+                }
+
+                var monsterPos = entry.Transform.Position.Value;
+                var (nearestPos, _) = FindNearestPlayer(monsterPos, players);
+                float dist = Vector3.Distance(monsterPos, nearestPos);
+
+                if (entry.Fsm.State == MonsterState.Chase)
+                {
+                    var dir = Vector3.Normalize(nearestPos - monsterPos);
+                    if (!float.IsNaN(dir.X))
+                        entry.Transform.Position.Value = monsterPos + dir * entry.MoveSpeed * dt;
+                }
+
+                entry.Fsm.Tick(dist, dt);
+            }
+        }
+
+        List<(Vector3 pos, NetworkPlayerState state)> CollectPlayerData()
+        {
+            var result = new List<(Vector3, NetworkPlayerState)>();
+            foreach (var obj in _networkObjectManager.SpawnedObjects.Values)
+            {
+                if (obj.OwnerClientId < 0) continue;
+                if (obj.Behaviours.Count < 2) continue;
+                if (obj.Behaviours[0] is NetworkPlayerTransform pt && obj.Behaviours[1] is NetworkPlayerState ps)
+                {
+                    if (!ps.IsDead.Value)
+                        result.Add((pt.Position.Value, ps));
+                }
+            }
+            return result;
+        }
+
+        (Vector3 pos, NetworkPlayerState state) FindNearestPlayer(Vector3 monsterPos, List<(Vector3 pos, NetworkPlayerState state)> players)
+        {
+            var nearest = players[0];
+            float minDist = Vector3.Distance(monsterPos, nearest.pos);
+            for (int i = 1; i < players.Count; i++)
+            {
+                float d = Vector3.Distance(monsterPos, players[i].pos);
+                if (d < minDist) { minDist = d; nearest = players[i]; }
+            }
+            return nearest;
+        }
+
+        void DealDamage(NetworkPlayerState playerState, float damage)
+        {
+            if (playerState.IsDead.Value) return;
+            float newHp = MathF.Max(playerState.Hp.Value - damage, 0f);
+            playerState.Hp.Value = newHp;
+            if (newHp <= 0f)
+                playerState.IsDead.Value = true;
         }
 
         void HandleNetworkVarUpdate(ClientSession session, C_NetworkVarUpdate packet)
