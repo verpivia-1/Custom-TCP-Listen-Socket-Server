@@ -36,12 +36,16 @@ namespace Server.InGame.Networking
             foreach (var behaviour in factory.Invoke())
                 obj.AddBehaviour(behaviour);
 
-            _objects[obj.NetworkObjectId] = obj;
             obj.IsSpawned = true;
             obj.NotifySpawn();
             setup?.Invoke(obj);
 
+            // S_ObjectSpawned에 초기 스냅샷이 포함되므로, 브로드캐스트 후 MarkClean
+            // → FlushLoop가 이미 전송된 초기값을 S_NetworkVarUpdate로 재전송하지 않음
+            // → 클라이언트가 S_ObjectSpawned보다 S_NetworkVarUpdate를 먼저 받는 race 방지
             _broadcast(new S_ObjectSpawned { ObjectInfo = obj.ToSpawnedObjectInfo() });
+            obj.MarkClean();
+            _objects[obj.NetworkObjectId] = obj;
             return obj;
         }
 
