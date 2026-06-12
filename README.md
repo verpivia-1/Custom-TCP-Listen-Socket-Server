@@ -94,10 +94,3 @@ Unity NGO의 `NetworkObject` / `NetworkBehaviour` 구조를 서버에 미러링.
 | ProcessPacketQueue | 30ms | 패킷 큐 소비 → 서비스 핸들러 호출 |
 | FlushLoop | 30ms | dirty NetworkVariable → `S_NetworkVarUpdate` 브로드캐스트 |
 | MonsterLoop | 100ms | 몬스터 Chase 이동 + FSM 상태 전환 + 공격 판정 |
-
----
-
-## 상세 문서
-
-- [서버 아키텍처](Server_Architecture.md)
-- [NetworkObject 시스템](NetworkObject_Architecture.md)
